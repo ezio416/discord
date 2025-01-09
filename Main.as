@@ -375,12 +375,11 @@ void SetStatus_Server(CGameCtnChallenge@ challenge, CGameCtnNetServerInfo@ serve
 
 #if DEPENDENCY_GRINDINGSTATS
 	uint64 totalTime = GrindingStats::GetTotalTime();
-	if (totalTime > 0)
+	if (totalTime > 0 && Setting_DisplayTotalTimeOnline)
 		status.StartTimestamp = Time::Stamp - (totalTime / 1000);
 	else
-#else
-	status.StartTimestamp = g_inServerTimeStart;
 #endif
+	status.StartTimestamp = g_inServerTimeStart;
 
 	if (secondsLeft > 0)
 		status.EndTimestamp = Time::Stamp + secondsLeft;
