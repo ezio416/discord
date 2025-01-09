@@ -5,3 +5,4 @@ category = "Utilities"
 
 [script]
 imports = [ "Dialogs.as" ]
+optional_dependencies = [ "GrindingStats" ]

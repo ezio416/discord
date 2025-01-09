@@ -312,6 +312,16 @@ void SetStatus_TitleSolo(CGameCtnChallenge@ challenge, CGameManiaTitle@ title)
 		status.Details = GetMapName(challenge);
 	}
 	status.State = "Playing solo";
+	if (Setting_DisplaySessionTimeSolo) {
+		uint64 sessionTime = GrindingStats::GetSessionTime();
+		if (sessionTime > 0)
+			status.State += ", " + Time::Format(sessionTime, false);
+	}
+	if (Setting_DisplayTotalTimeSolo) {
+		uint64 totalTime = GrindingStats::GetTotalTime();
+		if (totalTime > 0)
+			status.State += ", total " + Time::Format(totalTime, false);
+	}
 	Discord::SetStatus(status);
 }
 
@@ -350,6 +360,17 @@ void SetStatus_Server(CGameCtnChallenge@ challenge, CGameCtnNetServerInfo@ serve
 		status.Details += GetMapName(challenge);
 	} else {
 		status.Details += "In server";
+	}
+
+	if (Setting_DisplaySessionTimeOnline) {
+		uint64 sessionTime = GrindingStats::GetSessionTime();
+		if (sessionTime > 0)
+			status.Details += ", " + Time::Format(sessionTime, false);
+	}
+	if (Setting_DisplayTotalTimeOnline) {
+		uint64 totalTime = GrindingStats::GetTotalTime();
+		if (totalTime > 0)
+			status.Details += ", total " + Time::Format(totalTime, false);
 	}
 
 	if (Setting_DisplayServerInfoOnline) {
@@ -518,6 +539,8 @@ void Main()
 	NotifyString inServerDisplayName;
 #endif
 
+	uint8 counter = 0;
+
 	while (true) {
 		sleep(1000);
 
@@ -615,6 +638,14 @@ void Main()
 #if TMNEXT
 			g_currentServicesMapInfo.m_uid = "";
 #endif
+		}
+
+		if (false
+			|| (g_statusMode == 0 && (Setting_DisplaySessionTimeOnline || Setting_DisplayTotalTimeOnline))
+			|| (g_statusMode == 2 && (Setting_DisplaySessionTimeSolo || Setting_DisplayTotalTimeSolo))
+		) {
+			if (++counter % 4 == 1)  // only update every ~4 seconds, could be slowed down
+				g_updateQueued = true;
 		}
 
 		if (g_updateQueued) {
