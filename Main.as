@@ -312,15 +312,10 @@ void SetStatus_TitleSolo(CGameCtnChallenge@ challenge, CGameManiaTitle@ title)
 		status.Details = GetMapName(challenge);
 	}
 	status.State = "Playing solo";
-	if (Setting_DisplaySessionTimeSolo) {
-		uint64 sessionTime = GrindingStats::GetSessionTime();
-		if (sessionTime > 0)
-			status.State += ", " + Time::Format(sessionTime, false);
-	}
 	if (Setting_DisplayTotalTimeSolo) {
 		uint64 totalTime = GrindingStats::GetTotalTime();
 		if (totalTime > 0)
-			status.State += ", total " + Time::Format(totalTime, false);
+			status.StartTimestamp = Time::Stamp - (totalTime / 1000);
 	}
 	Discord::SetStatus(status);
 }
@@ -362,17 +357,6 @@ void SetStatus_Server(CGameCtnChallenge@ challenge, CGameCtnNetServerInfo@ serve
 		status.Details += "In server";
 	}
 
-	if (Setting_DisplaySessionTimeOnline) {
-		uint64 sessionTime = GrindingStats::GetSessionTime();
-		if (sessionTime > 0)
-			status.Details += ", " + Time::Format(sessionTime, false);
-	}
-	if (Setting_DisplayTotalTimeOnline) {
-		uint64 totalTime = GrindingStats::GetTotalTime();
-		if (totalTime > 0)
-			status.Details += ", total " + Time::Format(totalTime, false);
-	}
-
 	if (Setting_DisplayServerInfoOnline) {
 #if TURBO
 		status.State = g_serverDisplayName;
@@ -389,10 +373,17 @@ void SetStatus_Server(CGameCtnChallenge@ challenge, CGameCtnNetServerInfo@ serve
 		status.PartyMax = maxPlayers;
 	}
 
-	if (secondsLeft > 0) {
-		status.StartTimestamp = g_inServerTimeStart;
+#if DEPENDENCY_GRINDINGSTATS
+	uint64 totalTime = GrindingStats::GetTotalTime();
+	if (totalTime > 0)
+		status.StartTimestamp = Time::Stamp - (totalTime / 1000);
+	else
+#else
+	status.StartTimestamp = g_inServerTimeStart;
+#endif
+
+	if (secondsLeft > 0)
 		status.EndTimestamp = Time::Stamp + secondsLeft;
-	}
 
 	Discord::SetStatus(status);
 }
@@ -641,8 +632,8 @@ void Main()
 		}
 
 		if (false
-			|| (g_statusMode == 0 && (Setting_DisplaySessionTimeOnline || Setting_DisplayTotalTimeOnline))
-			|| (g_statusMode == 2 && (Setting_DisplaySessionTimeSolo || Setting_DisplayTotalTimeSolo))
+			|| (g_statusMode == 0 && Setting_DisplayTotalTimeOnline)
+			|| (g_statusMode == 2 && Setting_DisplayTotalTimeSolo)
 		) {
 			if (++counter % 4 == 1)  // only update every ~4 seconds, could be slowed down
 				g_updateQueued = true;

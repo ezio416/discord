@@ -5,9 +5,6 @@ bool Setting_DisplayLevelNameEditor = true;
 bool Setting_DisplayLevelNameSolo = true;
 
 #if DEPENDENCY_GRINDINGSTATS
-[Setting name="Display session time in solo" description="from Grinding Stats"]
-bool Setting_DisplaySessionTimeSolo = false;
-
 [Setting name="Display total time in solo" description="from Grinding Stats"]
 bool Setting_DisplayTotalTimeSolo = false;
 #endif
@@ -16,9 +13,6 @@ bool Setting_DisplayTotalTimeSolo = false;
 bool Setting_DisplayLevelNameOnline = true;
 
 #if DEPENDENCY_GRINDINGSTATS
-[Setting name="Display session time in online" description="from Grinding Stats"]
-bool Setting_DisplaySessionTimeOnline = false;
-
 [Setting name="Display total time in online" description="from Grinding Stats"]
 bool Setting_DisplayTotalTimeOnline = false;
 #endif
